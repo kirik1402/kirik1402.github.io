@@ -68,16 +68,31 @@
             };
         }
 
-        // Функция для загрузки и отображения KML-файлов
-        function loadKmlFiles(files) {
-            for (var i = 0; i < files.length; i++) {
-                (function(file) {
-                    var reader = new FileReader();
-                    reader.onload = function(event) {
-                        var kmlText = event.target.result;
-                        var kmlLayer = omnivore.kml.parse(kmlText);
+        // Функция для загрузки и отображения KML-файлов на сервер
+        function uploadKmlFiles(files) {
+            const formData = new FormData();
+            for (let i = 0; i < files.length; i++) {
+                formData.append('kmlFiles', files[i]);
+            }
+            fetch('/uploadKML', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                console.log(data);
+                loadKmlFilesFromServer();
+            })
+            .catch(error => console.error('Error uploading KML files:', error));
+        }
 
-                        // Когда KML-слой готов, зумируем карту на его экстент
+        // Функция для загрузки и отображения KML-файлов с сервера
+        function loadKmlFilesFromServer() {
+            fetch('/uploads')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(file => {
+                        var kmlLayer = omnivore.kml(file.path);
                         kmlLayer.on('ready', function() {
                             map.fitBounds(kmlLayer.getBounds());
 
@@ -93,62 +108,32 @@
                                 .setZIndexOffset(1000)
                                 .bindPopup("Конец: " + file.name);
                         }).addTo(map);
-                    };
-                    reader.readAsText(file);
-                })(files[i]);
-            }
+                    });
+                })
+                .catch(error => console.error('Error loading KML files from server:', error));
         }
 
-        // Функция для загрузки и отображения изображений
-        function loadImages(files) {
-            for (var i = 0; i < files.length; i++) {
-                (function(file) {
-                    var reader = new FileReader();
-                    reader.onload = function(event) {
-                        var img = new Image();
-                        img.src = event.target.result;
-                        img.onload = function() {
-                            EXIF.getData(img, function() {
-                                var lat = EXIF.getTag(this, "GPSLatitude");
-                                var lon = EXIF.getTag(this, "GPSLongitude");
-                                var latRef = EXIF.getTag(this, "GPSLatitudeRef") || "N";
-                                var lonRef = EXIF.getTag(this, "GPSLongitudeRef") || "W";
-                                var direction = EXIF.getTag(this, "GPSImgDirection");
-
-                                if (lat && lon) {
-                                    lat = (lat[0] + lat[1]/60 + lat[2]/3600) * (latRef === "N" ? 1 : -1);
-                                    lon = (lon[0] + lon[1]/60 + lon[2]/3600) * (lonRef === "W" ? -1 : 1);
-
-                                    // Создаем маркер для изображения
-                                    var imageMarker = L.marker([lat, lon]);
-
-                                    // Создаем popup с изображением
-                                    var popupContent = '<img src="' + img.src + '" style="width: 100%; max-width: 200px; height: auto;" />';
-                                    imageMarker.bindPopup(popupContent).addTo(map);
-
-                                    // Если есть направление, добавляем стрелку направления
-                                    if (direction) {
-                                        L.marker([lat, lon], {
-                                            icon: L.divIcon({
-                                                className: 'direction-arrow',
-                                                html: '<div style="transform: rotate(' + direction + 'deg);">&#x2191;</div>',
-                                                iconSize: [20, 20],
-                                                iconAnchor: [10, 10]
-                                            })
-                                        }).addTo(map).setZIndexOffset(1000);
-                                    }
-                                }
-                            });
-                        };
-                    };
-                    reader.readAsDataURL(file);
-                })(files[i]);
+        // Функция для загрузки и отображения изображений на сервер
+        function uploadImageFiles(files) {
+            const formData = new FormData();
+            for (let i = 0; i < files.length; i++) {
+                formData.append('imageFiles', files[i]);
             }
+            fetch('/uploadImages', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                console.log(data);
+                loadPhotosFromServer();
+            })
+            .catch(error => console.error('Error uploading image files:', error));
         }
 
-        // Функция для загрузки и отображения фотографий из JSON
-        function loadPhotosFromJson() {
-            fetch('https://raw.githubusercontent.com/USERNAME/REPOSITORY/main/photos.json')
+        // Функция для загрузки и отображения фотографий с сервера
+        function loadPhotosFromServer() {
+            fetch('/photos')
                 .then(response => response.json())
                 .then(data => {
                     data.forEach(photo => {
@@ -176,17 +161,19 @@
                             }).addTo(map).setZIndexOffset(1000);
                         }
                     });
-                });
+                })
+                .catch(error => console.error('Error loading photos from server:', error));
         }
 
-        // Загрузка фотографий из JSON при инициализации карты
-        loadPhotosFromJson();
+        // Загрузка фотографий и KML-файлов с сервера при инициализации карты
+        loadPhotosFromServer();
+        loadKmlFilesFromServer();
 
         // Обработка события выбора KML-файлов
         document.getElementById('fileInput').addEventListener('change', function(event) {
             var files = event.target.files;
             if (files) {
-                loadKmlFiles(files);
+                uploadKmlFiles(files);
             }
         });
 
@@ -194,7 +181,7 @@
         document.getElementById('imageInput').addEventListener('change', function(event) {
             var files = event.target.files;
             if (files) {
-                loadImages(files);
+                uploadImageFiles(files);
             }
         });
     </script>
