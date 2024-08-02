@@ -86,9 +86,11 @@
 
                             // Добавляем маркер с названием файла
                             L.marker(coords.start, {icon: startIcon}).addTo(map)
+                                .setZIndexOffset(1000)
                                 .bindPopup("Начало: " + file.name);
 
                             L.marker(coords.end, {icon: endIcon}).addTo(map)
+                                .setZIndexOffset(1000)
                                 .bindPopup("Конец: " + file.name);
                         }).addTo(map);
                     };
