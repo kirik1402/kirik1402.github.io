@@ -5,39 +5,15 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <style>
-        #map {
-            height: 80vh; /* Высота карты */
-            width: 100%;
-        }
-        body {
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .input-container {
-            margin: 10px 0;
-        }
-        .leaflet-marker-icon {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-        }
-        .direction-arrow {
-            z-index: 1000;
-            font-size: 100 px;
-            color: rgb(41, 4, 255);
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
     <div class="input-container">
-        <label for="fileInput">Import KML</label>
+        <label for="fileInput" class="button">Import KML</label>
         <input type="file" id="fileInput" accept=".kml" multiple />
     </div>
     <div class="input-container">
-        <label for="imageInput">Import Images</label>
+        <label for="imageInput" class="button">Import Images</label>
         <input type="file" id="imageInput" accept="image/*" multiple />
     </div>
     <div id="map"></div>
@@ -145,7 +121,7 @@
                                     var imageMarker = L.marker([lat, lon]);
 
                                     // Создаем popup с изображением
-                                    var popupContent = '<img src="' + img.src + '" style="width: 200px; height: auto;" />';
+                                    var popupContent = '<img src="' + img.src + '" style="width: 100%; max-width: 200px; height: auto;" />';
                                     imageMarker.bindPopup(popupContent).addTo(map);
 
                                     // Если есть направление, добавляем стрелку направления
