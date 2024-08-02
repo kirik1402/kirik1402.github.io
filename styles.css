@@ -38,7 +38,6 @@ input[type="file"] {
     height: 80vh; /* Высота карты */
     width: 100%;
     max-width: 100%;
-    position: relative;
 }
 
 .leaflet-popup-content img {
