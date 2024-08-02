@@ -144,6 +144,42 @@
             }
         }
 
+        // Функция для загрузки и отображения фотографий из JSON
+        function loadPhotosFromJson() {
+            fetch('https://raw.githubusercontent.com/USERNAME/REPOSITORY/main/photos.json')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(photo => {
+                        var lat = photo.lat;
+                        var lon = photo.lon;
+                        var direction = photo.direction;
+                        var imgSrc = photo.src;
+
+                        // Создаем маркер для изображения
+                        var imageMarker = L.marker([lat, lon]);
+
+                        // Создаем popup с изображением
+                        var popupContent = '<img src="' + imgSrc + '" style="width: 100%; max-width: 200px; height: auto;" />';
+                        imageMarker.bindPopup(popupContent).addTo(map);
+
+                        // Если есть направление, добавляем стрелку направления
+                        if (direction) {
+                            L.marker([lat, lon], {
+                                icon: L.divIcon({
+                                    className: 'direction-arrow',
+                                    html: '<div style="transform: rotate(' + direction + 'deg);">&#x2191;</div>',
+                                    iconSize: [20, 20],
+                                    iconAnchor: [10, 10]
+                                })
+                            }).addTo(map).setZIndexOffset(1000);
+                        }
+                    });
+                });
+        }
+
+        // Загрузка фотографий из JSON при инициализации карты
+        loadPhotosFromJson();
+
         // Обработка события выбора KML-файлов
         document.getElementById('fileInput').addEventListener('change', function(event) {
             var files = event.target.files;
