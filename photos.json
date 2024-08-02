@@ -1,0 +1,14 @@
+[
+    {
+        "src": "https://raw.githubusercontent.com/kirik1402/REPOSITORY/main/images/photo1.jpg",
+        "lat": 55.751244,
+        "lon": 37.618423,
+        "direction": 45
+    },
+    {
+        "src": "https://raw.githubusercontent.com/USERNAME/REPOSITORY/main/images/photo2.jpg",
+        "lat": 55.752244,
+        "lon": 37.619423,
+        "direction": 90
+    }
+]
