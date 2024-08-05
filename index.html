@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>geocontent viewer</title>
+    <title>Карта с KML-треками и изображениями на Leaflet и 2ГИС</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
@@ -17,6 +17,10 @@
         <input type="file" id="imageInput" accept="image/*" multiple />
     </div>
     <div id="map"></div>
+    <div class="footer">
+        <a href="bio.html" class="button">Обо мне</a>
+    </div>
+
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-omnivore/leaflet-omnivore.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
@@ -121,7 +125,7 @@
                                     var imageMarker = L.marker([lat, lon]);
 
                                     // Создаем popup с изображением
-                                    var popupContent = '<img src="' + img.src + '" style="width: 100%; max-width: 200px; height: auto;" />';
+                                    var popupContent = '<img src="' + img.src + '" style="width: 100%; max-width: 200px; height: auto;" class="popup-img" />';
                                     imageMarker.bindPopup(popupContent).addTo(map);
 
                                     // Если есть направление, добавляем стрелку направления
@@ -135,6 +139,11 @@
                                             })
                                         }).addTo(map).setZIndexOffset(1000);
                                     }
+
+                                    // Обработчик для клика по изображению в popup
+                                    L.DomEvent.addListener(imageMarker.getPopup().getElement(), 'click', function() {
+                                        window.open('image.html?src=' + encodeURIComponent(img.src), '_blank');
+                                    });
                                 }
                             });
                         };
