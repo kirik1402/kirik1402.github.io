@@ -6,15 +6,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="styles.css" />
+    <style>
+        body {
+            display: flex;
+        }
+        #sidebar {
+            width: 200px;
+            padding: 10px;
+            background: #f1f1f1;
+            border-right: 1px solid #ddd;
+        }
+        #map {
+            flex: 1;
+            height: 100vh;
+        }
+        .input-container {
+            margin-bottom: 10px;
+        }
+        .image-list {
+            list-style: none;
+            padding: 0;
+        }
+        .image-list li {
+            margin-bottom: 5px;
+        }
+        .image-list li a {
+            text-decoration: none;
+            color: #007bff;
+            cursor: pointer;
+        }
+        .image-list li a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <div class="input-container">
-        <label for="fileInput" class="button">Import KML</label>
-        <input type="file" id="fileInput" accept=".kml" multiple />
-    </div>
-    <div class="input-container">
-        <label for="imageInput" class="button">Import Images</label>
-        <input type="file" id="imageInput" accept="image/*" multiple />
+    <div id="sidebar">
+        <div class="input-container">
+            <label for="fileInput" class="button">Import KML</label>
+            <input type="file" id="fileInput" accept=".kml" multiple />
+        </div>
+        <div class="input-container">
+            <label for="imageInput" class="button">Import Images</label>
+            <input type="file" id="imageInput" accept="image/*" multiple />
+        </div>
+        <h3>Image Data</h3>
+        <ul class="image-list" id="imageList"></ul>
     </div>
     <div id="map"></div>
     <div class="footer">
@@ -34,7 +71,24 @@
             attribution: '&copy; 2ГИС'
         }).addTo(map);
 
-
+        // Иконки для первой и последней точки
+        var startIcon = L.icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png', // URL зеленой иконки
+            iconSize: [25, 41], // размер иконки
+            iconAnchor: [12, 41], // точка привязки иконки (координата ее "хвоста")
+            popupAnchor: [1, -34], // точка, относительно которой будет открываться popup
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+            shadowSize: [41, 41]
+        });
+        
+        var endIcon = L.icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png', // URL красной иконки
+            iconSize: [25, 41], // размер иконки
+            iconAnchor: [12, 41], // точка привязки иконки (координата ее "хвоста")
+            popupAnchor: [1, -34], // точка, относительно которой будет открываться popup
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+            shadowSize: [41, 41]
+        });
 
         // Функция для конвертации GPS координат из EXIF метаданных
         function convertDMSToDD(degrees, minutes, seconds, direction) {
@@ -44,6 +98,8 @@
             }
             return dd;
         }
+
+        var imageMarkers = [];
 
         // Функция для извлечения координат начала и конца из KML-слоя
         function getStartEndCoordinates(layer) {
@@ -65,24 +121,7 @@
                 end: [end[1], end[0]] // Переставляем координаты для Leaflet
             };
         }
-        // Иконки для первой и последней точки
-        var startIcon = L.icon({
-            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png', // URL зеленой иконки
-            iconSize: [25, 41], // размер иконки
-            iconAnchor: [12, 41], // точка привязки иконки (координата ее "хвоста")
-            popupAnchor: [1, -34], // точка, относительно которой будет открываться popup
-            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-            shadowSize: [41, 41]
-        });
-        
-        var endIcon = L.icon({
-            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png', // URL красной иконки
-            iconSize: [25, 41], // размер иконки
-            iconAnchor: [12, 41], // точка привязки иконки (координата ее "хвоста")
-            popupAnchor: [1, -34], // точка, относительно которой будет открываться popup
-            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-            shadowSize: [41, 41]
-        });
+
         // Функция для загрузки и отображения KML-файлов
         function loadKmlFiles(files) {
             for (var i = 0; i < files.length; i++) {
@@ -121,6 +160,9 @@
 
         // Функция для загрузки и отображения изображений
         function loadImages(files) {
+            var imageList = document.getElementById('imageList');
+            imageList.innerHTML = ''; // Очищаем список перед добавлением новых элементов
+
             for (var i = 0; i < files.length; i++) {
                 (function (file) {
                     var reader = new FileReader();
@@ -141,6 +183,7 @@
 
                                     // Создаем маркер для изображения
                                     var imageMarker = L.marker([lat, lon]);
+                                    imageMarkers.push({ marker: imageMarker, fileName: file.name });
 
                                     // Создаем popup с изображением
                                     var popupContent = '<img src="' + img.src + '" style="width: 100%; max-width: 200px; height: auto;" class="popup-img" />';
@@ -162,6 +205,20 @@
                                     L.DomEvent.addListener(imageMarker.getPopup().getElement(), 'click', function () {
                                         window.open('image.html?src=' + encodeURIComponent(img.src), '_blank');
                                     });
+
+                                    // Добавляем название файла в список
+                                    var listItem = document.createElement('li');
+                                    var listLink = document.createElement('a');
+                                    listLink.textContent = file.name;
+                                    listLink.href = '#';
+                                    listLink.addEventListener('click', function () {
+                                        map.setView([lat, lon], 18); // Максимальный зум
+                                        imageMarker.openPopup();
+                                    });
+                                    listItem.appendChild(listLink);
+                                    imageList.appendChild(listItem);
+                                } else {
+                                    console.log("Нет координат в изображении: ", file.name);
                                 }
                             });
                         };
