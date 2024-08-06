@@ -53,37 +53,14 @@
             shadowSize: [41, 41]
         });
 
-       // Путь к вашему изображению
-        var imageUrl = '1722427173380_55.639560647944_37.605356608556.jpg';
-
         // Функция для конвертации GPS координат из EXIF метаданных
         function convertDMSToDD(degrees, minutes, seconds, direction) {
-            var dd = degrees + (minutes/60) + (seconds/3600);
+            var dd = degrees + (minutes / 60) + (seconds / 3600);
             if (direction == "S" || direction == "W") {
                 dd = dd * -1;
             }
             return dd;
         }
-
-        // Чтение EXIF метаданных изображения
-        var img = new Image();
-        img.src = imageUrl;
-        img.onload = function () {
-            EXIF.getData(img, function() {
-                var lat = EXIF.getTag(this, "GPSLatitude");
-                var lon = EXIF.getTag(this, "GPSLongitude");
-                var latRef = EXIF.getTag(this, "GPSLatitudeRef") || "N";
-                var lonRef = EXIF.getTag(this, "GPSLongitudeRef") || "W";
-
-                if (lat && lon) {
-                    var latitude = convertDMSToDD(lat[0], lat[1], lat[2], latRef);
-                    var longitude = convertDMSToDD(lon[0], lon[1], lon[2], lonRef);
-                    initMap(latitude, longitude);
-                } else {
-                    alert("Координаты не найдены в метаданных изображения.");
-                }
-            });
-        };
 
         // Функция для извлечения координат начала и конца из KML-слоя
         function getStartEndCoordinates(layer) {
@@ -96,6 +73,8 @@
                 }
             });
 
+            if (!coordinates) return null;
+
             var start = coordinates[0];
             var end = coordinates[coordinates.length - 1];
             return {
@@ -107,25 +86,27 @@
         // Функция для загрузки и отображения KML-файлов
         function loadKmlFiles(files) {
             for (var i = 0; i < files.length; i++) {
-                (function(file) {
+                (function (file) {
                     var reader = new FileReader();
-                    reader.onload = function(event) {
+                    reader.onload = function (event) {
                         var kmlText = event.target.result;
                         var kmlLayer = omnivore.kml.parse(kmlText);
 
                         // Когда KML-слой готов, зумируем карту на его экстент
-                        kmlLayer.on('ready', function() {
+                        kmlLayer.on('ready', function () {
                             map.fitBounds(kmlLayer.getBounds());
 
                             // Получаем координаты начала и конца
                             var coords = getStartEndCoordinates(kmlLayer);
 
-                            // Добавляем маркер с названием файла
-                            L.marker(coords.start, {icon: startIcon}).addTo(map)
-                                .bindPopup("Начало: " + file.name);
+                            if (coords) {
+                                // Добавляем маркер с названием файла
+                                L.marker(coords.start, { icon: startIcon }).addTo(map)
+                                    .bindPopup("Начало: " + file.name);
 
-                            L.marker(coords.end, {icon: endIcon}).addTo(map)
-                                .bindPopup("Конец: " + file.name);
+                                L.marker(coords.end, { icon: endIcon }).addTo(map)
+                                    .bindPopup("Конец: " + file.name);
+                            }
                         }).addTo(map);
                     };
                     reader.readAsText(file);
@@ -136,13 +117,13 @@
         // Функция для загрузки и отображения изображений
         function loadImages(files) {
             for (var i = 0; i < files.length; i++) {
-                (function(file) {
+                (function (file) {
                     var reader = new FileReader();
-                    reader.onload = function(event) {
+                    reader.onload = function (event) {
                         var img = new Image();
                         img.src = event.target.result;
-                        img.onload = function() {
-                            EXIF.getData(img, function() {
+                        img.onload = function () {
+                            EXIF.getData(img, function () {
                                 var lat = EXIF.getTag(this, "GPSLatitude");
                                 var lon = EXIF.getTag(this, "GPSLongitude");
                                 var latRef = EXIF.getTag(this, "GPSLatitudeRef") || "N";
@@ -150,8 +131,8 @@
                                 var direction = EXIF.getTag(this, "GPSImgDirection");
 
                                 if (lat && lon) {
-                                    lat = (lat[0] + lat[1]/60 + lat[2]/3600) * (latRef === "N" ? 1 : -1);
-                                    lon = (lon[0] + lon[1]/60 + lon[2]/3600) * (lonRef === "W" ? -1 : 1);
+                                    lat = convertDMSToDD(lat[0], lat[1], lat[2], latRef);
+                                    lon = convertDMSToDD(lon[0], lon[1], lon[2], lonRef);
 
                                     // Создаем маркер для изображения
                                     var imageMarker = L.marker([lat, lon]);
@@ -173,7 +154,7 @@
                                     }
 
                                     // Обработчик для клика по изображению в popup
-                                    L.DomEvent.addListener(imageMarker.getPopup().getElement(), 'click', function() {
+                                    L.DomEvent.addListener(imageMarker.getPopup().getElement(), 'click', function () {
                                         window.open('image.html?src=' + encodeURIComponent(img.src), '_blank');
                                     });
                                 }
@@ -186,21 +167,15 @@
         }
 
         // Обработка события выбора KML-файлов
-        document.getElementById('fileInput').addEventListener('change', function(event) {
+        document.getElementById('fileInput').addEventListener('change', function (event) {
             var files = event.target.files;
             if (files) {
                 loadKmlFiles(files);
             }
         });
-            // Добавление маркера с изображением
-            var marker = L.marker([lat, lon]).addTo(map);
-            var popupContent = '<div class="custom-popup"><img src="' + imageUrl + '" alt="Изображение"></div>';
-            marker.bindPopup(popupContent);
 
-            // Показать попап сразу
-            marker.openPopup();
         // Обработка события выбора изображений
-        document.getElementById('imageInput').addEventListener('change', function(event) {
+        document.getElementById('imageInput').addEventListener('change', function (event) {
             var files = event.target.files;
             if (files) {
                 loadImages(files);
