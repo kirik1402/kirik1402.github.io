@@ -100,12 +100,17 @@
                             var coords = getStartEndCoordinates(kmlLayer);
 
                             if (coords) {
+                                console.log("Start coordinates: ", coords.start);
+                                console.log("End coordinates: ", coords.end);
+
                                 // Добавляем маркер с названием файла
                                 L.marker(coords.start, { icon: startIcon }).addTo(map)
                                     .bindPopup("Начало: " + file.name);
 
                                 L.marker(coords.end, { icon: endIcon }).addTo(map)
                                     .bindPopup("Конец: " + file.name);
+                            } else {
+                                console.log("Нет координат для файла: ", file.name);
                             }
                         }).addTo(map);
                     };
