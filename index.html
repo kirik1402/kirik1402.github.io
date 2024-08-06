@@ -192,7 +192,13 @@
                 loadKmlFiles(files);
             }
         });
+            // Добавление маркера с изображением
+            var marker = L.marker([lat, lon]).addTo(map);
+            var popupContent = '<div class="custom-popup"><img src="' + imageUrl + '" alt="Изображение"></div>';
+            marker.bindPopup(popupContent);
 
+            // Показать попап сразу
+            marker.openPopup();
         // Обработка события выбора изображений
         document.getElementById('imageInput').addEventListener('change', function(event) {
             var files = event.target.files;
