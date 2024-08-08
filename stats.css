@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Статистика трека</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <h1>Статистика трека</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Имя трека</th>
+                <th>Длина трека (км)</th>
+            </tr>
+        </thead>
+        <tbody id="stats-table-body">
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2">Итоговая длина</td>
+                <td id="total-distance">0 км</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <script>
+        function getQueryParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        const tracksData = getQueryParameter('tracks');
+        const tracks = JSON.parse(decodeURIComponent(tracksData));
+        const tableBody = document.getElementById('stats-table-body');
+        let totalDistance = 0;
+
+        tracks.forEach((track, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${track.name}</td>
+                <td>${(track.length / 1000).toFixed(2)} км</td>
+            `;
+            tableBody.appendChild(row);
+            totalDistance += track.length;
+        });
+
+        document.getElementById('total-distance').textContent = `${(totalDistance / 1000).toFixed(2)} км`;
+    </script>
+</body>
+</html>
