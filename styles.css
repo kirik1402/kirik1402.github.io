@@ -1,0 +1,20 @@
+body {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    height: 100vh;
+}
+
+#map {
+    flex: 1;
+}
+
+#image-container {
+    text-align: center; /* Центрирование изображения по горизонтали */
+    padding: 10px;
+}
+
+#image-container img {
+    max-width: 20%; /* Уменьшение изображения в пять раз */
+    height: auto;
+}
