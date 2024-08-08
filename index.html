@@ -40,7 +40,7 @@
         }).addTo(map);
 
         // Загружаем и отображаем KML файл
-        fetch('trek.kml')
+        fetch('https://github.com/kirik1402/kirik1402.github.io/blob/main/trek.kml')
             .then(res => {
                 if (!res.ok) {
                     throw new Error(`HTTP error! status: ${res.status}`);
