@@ -12,6 +12,7 @@
     <label for="file-input" class="custom-file-upload">Загрузить KML файлы</label>
     <input type="file" id="file-input" accept=".kml" multiple>
     <button id="stats-btn" style="display:none;">Перейти к статистике</button>
+    <div id="loading" style="display:none;">Идёт загрузка, подождите...</div>
     <div id="map"></div>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -31,6 +32,7 @@
         document.getElementById('file-input').addEventListener('change', function(event) {
             const files = Array.from(event.target.files);
             if (files.length > 0) {
+                document.getElementById('loading').style.display = 'block';
                 files.forEach(file => {
                     const reader = new FileReader();
                     reader.onload = function(e) {
@@ -54,11 +56,16 @@
             const bounds = geoJsonLayer.getBounds();
             map.fitBounds(bounds);
 
-            // Подсчет длины трека
+            // Подсчет длины трека и получение координат начала и конца
             const trackLength = calculateDistance(geojson);
-            tracks.push({ name: fileName, length: trackLength });
+            const startCoords = geojson.features[0].geometry.coordinates[0];
+            const endCoords = geojson.features[0].geometry.coordinates.slice(-1)[0];
+            tracks.push({ name: fileName, length: trackLength, startCoords, endCoords });
 
-            document.getElementById('stats-btn').style.display = 'block';
+            if (tracks.length === document.getElementById('file-input').files.length) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('stats-btn').style.display = 'block';
+            }
         }
 
         function calculateDistance(geojson) {
