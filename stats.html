@@ -27,6 +27,7 @@
             </tr>
         </tfoot>
     </table>
+    <button id="back-btn">Back to Main</button>
 
     <script>
         function getQueryParameter(name) {
@@ -55,6 +56,10 @@
         });
 
         document.getElementById('total-distance').textContent = `${(totalDistance / 1000).toFixed(2)} км`;
+
+        document.getElementById('back-btn').addEventListener('click', function() {
+            window.location.href = 'index.html';
+        });
     </script>
 </body>
 </html>
