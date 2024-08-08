@@ -26,7 +26,12 @@
 
         // Загружаем и отображаем KML файл
         fetch('trek.kml')
-            .then(res => res.text())
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                return res.text();
+            })
             .then(kmlText => {
                 var parser = new DOMParser();
                 var kml = parser.parseFromString(kmlText, 'text/xml');
@@ -35,7 +40,11 @@
 
                 // Устанавливаем границы карты по KML треку
                 var bounds = track.getBounds();
-                map.fitBounds(bounds);
+                if (bounds.isValid()) {
+                    map.fitBounds(bounds);
+                } else {
+                    console.error('Bounds are not valid.');
+                }
             })
             .catch(error => console.error('Error fetching KML file:', error));
     </script>
