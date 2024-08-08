@@ -8,13 +8,20 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
         #map {
-            height: 100vh;
+            height: 80vh;
             width: 100%;
+        }
+        .link-container {
+            text-align: center;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
     <div id="map"></div>
+    <div class="link-container">
+        <a href="stats.html">View Track Length</a>
+    </div>
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <!-- toGeoJSON JS -->
@@ -45,12 +52,14 @@
                     }).addTo(map);
                     // Fit map to the bounds of the GeoJSON layer
                     map.fitBounds(trackLayer.getBounds());
+                    // Save GeoJSON to localStorage for use in stats.html
+                    localStorage.setItem('geojson', JSON.stringify(geojson));
                 })
                 .catch(err => console.log(err));
         }
 
-        // Load the KML file from GitHub Pages
-        loadKML('https://kirik1402.github.io/blob/main/trek.kml');
+        // Load the KML file from GitHub Pages (replace with your actual URL)
+        loadKML('https://kirik1402.github.io/main/trek.kml');
     </script>
 </body>
 </html>
