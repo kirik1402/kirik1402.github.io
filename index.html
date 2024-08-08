@@ -21,8 +21,24 @@
         // URL для доступа к файлу KML в Firebase Storage
         var kmlUrl = 'https://firebasestorage.googleapis.com/v0/b/kml360.appspot.com/o/trek.kml?alt=media&token=1036fd6f-0405-4043-8243-75f4051d553f';
 
-        // Загрузка и добавление KML файла на карту
-        omnivore.kml(kmlUrl).addTo(map);
+        // Загрузка файла KML с использованием fetch
+        fetch(kmlUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(kmlText => {
+                console.log("KML файл загружен успешно");
+                var kmlLayer = omnivore.kml.parse(kmlText);
+                kmlLayer.addTo(map);
+                // Центрирование карты на слое KML
+                map.fitBounds(kmlLayer.getBounds());
+            })
+            .catch(error => {
+                console.error('Ошибка при загрузке KML файла:', error);
+            });
     </script>
 </body>
 </html>
