@@ -56,6 +56,12 @@ button:hover {
     background-color: #0056b3;
 }
 
+#loading {
+    margin: 20px;
+    font-size: 18px;
+    color: #007bff;
+}
+
 table {
     width: 80%;
     margin: 20px auto;
