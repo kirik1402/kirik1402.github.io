@@ -3,50 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Карта на 2ГИС с KML</title>
-    <style>
-        #map {
-            width: 100%;
-            height: 100vh; /* Высота на весь экран */
-        }
-    </style>
-    <!-- Подключаем библиотеку 2ГИС -->
-    <script src="https://cdn.jsdelivr.net/npm/@2gis/mapgl@1.0.0-beta.23/dist/mapgl.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@2gis/mapgl@1.0.0-beta.23/dist/mapgl.css" type="text/css">
+    <title>Карта 2ГИС с поддержкой KML и автозумом</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <!-- Контейнер для карты -->
+    <h1>Карта 2ГИС с поддержкой KML и автозумом</h1>
+    <label for="file-input" class="custom-file-upload">Загрузить KML файлы</label>
+    <input type="file" id="file-input" accept=".kml" multiple>
+    <button id="stats-btn" style="display:none;">Перейти к статистике</button>
     <div id="map"></div>
-    
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/togeojson"></script>
     <script>
-        const map = new mapgl.Map('map', {
-            center: [37.6173, 55.7558], // Координаты центра карты (Москва)
-            zoom: 10 // Уровень масштабирования
+        let tracks = [];
+
+        // Инициализация карты с экстентом на Москву
+        const map = L.map('map').setView([55.751244, 37.618423], 10);
+        
+        // Добавление слоя карты 2ГИС
+        L.tileLayer('https://tile2.maps.2gis.com/tiles?x={x}&y={y}&z={z}&v=1', {
+            maxZoom: 19,
+            attribution: '© 2ГИС'
+        }).addTo(map);
+
+        document.getElementById('file-input').addEventListener('change', function(event) {
+            const files = Array.from(event.target.files);
+            if (files.length > 0) {
+                files.forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const kmlText = e.target.result;
+                        parseKML(kmlText, file.name);
+                    };
+                    reader.readAsText(file);
+                });
+            }
         });
 
-        // Функция для загрузки и отображения KML файла
-        function loadKML(url) {
-            fetch(url)
-                .then(response => response.text())
-                .then(kmlText => {
-                    const parser = new DOMParser();
-                    const kml = parser.parseFromString(kmlText, 'application/xml');
-                    const placemarks = kml.querySelectorAll('Placemark');
+        function parseKML(kmlText, fileName) {
+            const parser = new DOMParser();
+            const kmlDoc = parser.parseFromString(kmlText, 'application/xml');
+            const geojson = toGeoJSON.kml(kmlDoc);
 
-                    placemarks.forEach(placemark => {
-                        const coords = placemark.querySelector('coordinates').textContent.trim().split(',');
-                        const lon = parseFloat(coords[0]);
-                        const lat = parseFloat(coords[1]);
+            // Добавление KML данных на карту как GeoJSON слой
+            const geoJsonLayer = L.geoJSON(geojson).addTo(map);
 
-                        new mapgl.Marker(map, {
-                            coordinates: [lon, lat],
-                        });
-                    });
-                });
+            // Получение границ (bounding box) загруженного слоя
+            const bounds = geoJsonLayer.getBounds();
+            map.fitBounds(bounds);
+
+            // Подсчет длины трека
+            const trackLength = calculateDistance(geojson);
+            tracks.push({ name: fileName, length: trackLength });
+
+            document.getElementById('stats-btn').style.display = 'block';
         }
 
-        // Загрузка KML файла
-        loadKML('trek.kml');
+        function calculateDistance(geojson) {
+            let distance = 0;
+            geojson.features.forEach(feature => {
+                if (feature.geometry.type === 'LineString') {
+                    const coords = feature.geometry.coordinates;
+                    for (let i = 1; i < coords.length; i++) {
+                        distance += getDistance(
+                            coords[i-1][1], coords[i-1][0],
+                            coords[i][1], coords[i][0]
+                        );
+                    }
+                }
+            });
+            return distance;
+        }
+
+        function getDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371e3; // metres
+            const φ1 = lat1 * Math.PI/180;
+            const φ2 = lat2 * Math.PI/180;
+            const Δφ = (lat2-lat1) * Math.PI/180;
+            const Δλ = (lon2-lon1) * Math.PI/180;
+
+            const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                      Math.cos(φ1) * Math.cos(φ2) *
+                      Math.sin(Δλ/2) * Math.sin(Δλ/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+            const d = R * c;
+            return d;
+        }
+
+        document.getElementById('stats-btn').addEventListener('click', function() {
+            const tracksData = encodeURIComponent(JSON.stringify(tracks));
+            window.location.href = `stats.html?tracks=${tracksData}`;
+        });
     </script>
 </body>
 </html>
