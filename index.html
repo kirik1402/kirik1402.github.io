@@ -21,8 +21,12 @@
         // URL для доступа к файлу KML в Firebase Storage
         var kmlUrl = 'https://firebasestorage.googleapis.com/v0/b/kml360.appspot.com/o/trek.kml?alt=media&token=1036fd6f-0405-4043-8243-75f4051d553f';
 
+        // Использование прокси-сервера для обхода CORS
+        var proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+        var proxiedKmlUrl = proxyUrl + kmlUrl;
+
         // Загрузка файла KML с использованием fetch
-        fetch(kmlUrl)
+        fetch(proxiedKmlUrl)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
