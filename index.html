@@ -1,254 +1,56 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Карта с KML-треками и изображениями на Leaflet и 2ГИС</title>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2GIS Map with KML Track</title>
+    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <link rel="stylesheet" href="styles.css" />
     <style>
-        body {
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            flex-direction: row;
-            overflow: hidden;
-        }
-        #sidebar {
-            width: 25%;
-            min-width: 200px;
-            padding: 10px;
-            background: #f1f1f1;
-            border-right: 1px solid #ddd;
-            overflow-y: auto;
-        }
         #map {
-            width: 75%;
             height: 100vh;
-        }
-        .input-container {
-            margin-bottom: 10px;
-        }
-        .image-list {
-            list-style: none;
-            padding: 0;
-        }
-        .image-list li {
-            margin-bottom: 5px;
-        }
-        .image-list li a {
-            text-decoration: none;
-            color: #007bff;
-            cursor: pointer;
-        }
-        .image-list li a:hover {
-            text-decoration: underline;
+            width: 100%;
         }
     </style>
 </head>
 <body>
-    <div id="sidebar">
-        <div class="input-container">
-            <label for="fileInput" class="button">Import KML</label>
-            <input type="file" id="fileInput" accept=".kml" multiple />
-        </div>
-        <div class="input-container">
-            <label for="imageInput" class="button">Import Images</label>
-            <input type="file" id="imageInput" accept="image/*" multiple />
-        </div>
-        <h3>Image Data</h3>
-        <ul class="image-list" id="imageList"></ul>
-    </div>
     <div id="map"></div>
-    <div class="footer">
-        <a href="bio.html" class="button link-button">Обо мне</a>
-    </div>
-
+    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-omnivore/leaflet-omnivore.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
+    <!-- toGeoJSON JS -->
+    <script src="https://unpkg.com/togeojson"></script>
     <script>
-        // Инициализация карты
-        var map = L.map('map').setView([55.751244, 37.618423], 10); // Установите начальные координаты и масштаб (например, Москва)
+        // Initialize the map
+        var map = L.map('map').setView([55.751244, 37.618423], 10); // Центрируем карту на Москве
 
-        // Добавление базового слоя карты (2ГИС)
-        L.tileLayer('https://tile0.maps.2gis.com/tiles?x={x}&y={y}&z={z}', {
+        // Add 2GIS tile layer
+        var baseLayer = L.tileLayer('https://tile2.maps.2gis.com/tiles?x={x}&y={y}&z={z}', {
             maxZoom: 18,
-            attribution: '&copy; 2ГИС'
+            attribution: 'Map data © 2GIS'
         }).addTo(map);
 
-        // Иконки для первой и последней точки
-        var startIcon = L.icon({
-            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png', // URL зеленой иконки
-            iconSize: [25, 41], // размер иконки
-            iconAnchor: [12, 41], // точка привязки иконки (координата ее "хвоста")
-            popupAnchor: [1, -34], // точка, относительно которой будет открываться popup
-            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-            shadowSize: [41, 41]
-        });
-        
-        var endIcon = L.icon({
-            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png', // URL красной иконки
-            iconSize: [25, 41], // размер иконки
-            iconAnchor: [12, 41], // точка привязки иконки (координата ее "хвоста")
-            popupAnchor: [1, -34], // точка, относительно которой будет открываться popup
-            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-            shadowSize: [41, 41]
-        });
-
-        // Функция для конвертации GPS координат из EXIF метаданных
-        function convertDMSToDD(degrees, minutes, seconds, direction) {
-            var dd = degrees + (minutes / 60) + (seconds / 3600);
-            if (direction == "S" || direction == "W") {
-                dd = dd * -1;
-            }
-            return dd;
+        // Function to load and parse KML file
+        function loadKML(url) {
+            fetch(url)
+                .then(response => response.text())
+                .then(kmlText => {
+                    var parser = new DOMParser();
+                    var kml = parser.parseFromString(kmlText, 'text/xml');
+                    var geojson = toGeoJSON.kml(kml);
+                    var trackLayer = L.geoJSON(geojson, {
+                        style: {
+                            color: 'red',  // Цвет кривой
+                            weight: 3      // Толщина кривой
+                        }
+                    }).addTo(map);
+                    // Fit map to the bounds of the GeoJSON layer
+                    map.fitBounds(trackLayer.getBounds());
+                })
+                .catch(err => console.log(err));
         }
 
-        var imageMarkers = [];
-
-        // Функция для извлечения координат начала и конца из KML-слоя
-        function getStartEndCoordinates(layer) {
-            var coordinates;
-            layer.eachLayer(function (l) {
-                if (l.feature.geometry.type === 'LineString') {
-                    coordinates = l.feature.geometry.coordinates;
-                } else if (l.feature.geometry.type === 'MultiLineString') {
-                    coordinates = l.feature.geometry.coordinates[0];
-                }
-            });
-
-            if (!coordinates) return null;
-
-            var start = coordinates[0];
-            var end = coordinates[coordinates.length - 1];
-            return {
-                start: [start[1], start[0]], // Переставляем координаты для Leaflet
-                end: [end[1], end[0]] // Переставляем координаты для Leaflet
-            };
-        }
-
-        // Функция для загрузки и отображения KML-файлов
-        function loadKmlFiles(files) {
-            for (var i = 0; i < files.length; i++) {
-                (function (file) {
-                    var reader = new FileReader();
-                    reader.onload = function (event) {
-                        var kmlText = event.target.result;
-                        var kmlLayer = omnivore.kml.parse(kmlText);
-
-                        // Когда KML-слой готов, зумируем карту на его экстент
-                        kmlLayer.on('ready', function () {
-                            map.fitBounds(kmlLayer.getBounds());
-
-                            // Получаем координаты начала и конца
-                            var coords = getStartEndCoordinates(kmlLayer);
-
-                            if (coords) {
-                                console.log("Start coordinates: ", coords.start);
-                                console.log("End coordinates: ", coords.end);
-
-                                // Добавляем маркер с названием файла
-                                L.marker(coords.start, { icon: startIcon }).addTo(map)
-                                    .bindPopup("Начало: " + file.name);
-
-                                L.marker(coords.end, { icon: endIcon }).addTo(map)
-                                    .bindPopup("Конец: " + file.name);
-                            } else {
-                                console.log("Нет координат для файла: ", file.name);
-                            }
-                        }).addTo(map);
-                    };
-                    reader.readAsText(file);
-                })(files[i]);
-            }
-        }
-
-        // Функция для загрузки и отображения изображений
-        function loadImages(files) {
-            var imageList = document.getElementById('imageList');
-            imageList.innerHTML = ''; // Очищаем список перед добавлением новых элементов
-
-            for (var i = 0; i < files.length; i++) {
-                (function (file) {
-                    var reader = new FileReader();
-                    reader.onload = function (event) {
-                        var img = new Image();
-                        img.src = event.target.result;
-                        img.onload = function () {
-                            EXIF.getData(img, function () {
-                                var lat = EXIF.getTag(this, "GPSLatitude");
-                                var lon = EXIF.getTag(this, "GPSLongitude");
-                                var latRef = EXIF.getTag(this, "GPSLatitudeRef") || "N";
-                                var lonRef = EXIF.getTag(this, "GPSLongitudeRef") || "W";
-                                var direction = EXIF.getTag(this, "GPSImgDirection");
-
-                                if (lat && lon) {
-                                    lat = convertDMSToDD(lat[0], lat[1], lat[2], latRef);
-                                    lon = convertDMSToDD(lon[0], lon[1], lon[2], lonRef);
-
-                                    // Создаем маркер для изображения
-                                    var imageMarker = L.marker([lat, lon]);
-                                    imageMarkers.push({ marker: imageMarker, fileName: file.name });
-
-                                    // Создаем popup с изображением
-                                    var popupContent = '<img src="' + img.src + '" style="width: 100%; max-width: 200px; height: auto;" class="popup-img" />';
-                                    imageMarker.bindPopup(popupContent).addTo(map);
-
-                                    // Если есть направление, добавляем стрелку направления
-                                    if (direction) {
-                                        L.marker([lat, lon], {
-                                            icon: L.divIcon({
-                                                className: 'direction-arrow',
-                                                html: '<div style="transform: rotate(' + direction + 'deg);">&#x2191;</div>',
-                                                iconSize: [20, 20],
-                                                iconAnchor: [10, 10]
-                                            })
-                                        }).addTo(map).setZIndexOffset(1000);
-                                    }
-
-                                    // Обработчик для клика по изображению в popup
-                                    L.DomEvent.addListener(imageMarker.getPopup().getElement(), 'click', function () {
-                                        window.open('image.html?src=' + encodeURIComponent(img.src), '_blank');
-                                    });
-
-                                    // Добавляем название файла в список
-                                    var listItem = document.createElement('li');
-                                    var listLink = document.createElement('a');
-                                    listLink.textContent = file.name;
-                                    listLink.href = '#';
-                                    listLink.addEventListener('click', function () {
-                                        map.setView([lat, lon], 18); // Максимальный зум
-                                        imageMarker.openPopup();
-                                    });
-                                    listItem.appendChild(listLink);
-                                    imageList.appendChild(listItem);
-                                } else {
-                                    console.log("Нет координат в изображении: ", file.name);
-                                }
-                            });
-                        };
-                    };
-                    reader.readAsDataURL(file);
-                })(files[i]);
-            }
-        }
-
-        // Обработка события выбора KML-файлов
-        document.getElementById('fileInput').addEventListener('change', function (event) {
-            var files = event.target.files;
-            if (files) {
-                loadKmlFiles(files);
-            }
-        });
-
-        // Обработка события выбора изображений
-        document.getElementById('imageInput').addEventListener('change', function (event) {
-            var files = event.target.files;
-            if (files) {
-                loadImages(files);
-            }
-        });
+        // Load the KML file from GitHub Pages
+        loadKML('https://kirik1402.github.io/blob/main/trek.kml');
     </script>
 </body>
 </html>
