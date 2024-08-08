@@ -1,65 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2GIS Map with KML Track</title>
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <style>
-        #map {
-            height: 80vh;
-            width: 100%;
-        }
-        .link-container {
-            text-align: center;
-            margin-top: 20px;
-        }
-    </style>
+in process
 </head>
 <body>
-    <div id="map"></div>
-    <div class="link-container">
-        <a href="stats.html">View Track Length</a>
-    </div>
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <!-- toGeoJSON JS -->
-    <script src="https://unpkg.com/togeojson"></script>
-    <script>
-        // Initialize the map
-        var map = L.map('map').setView([55.751244, 37.618423], 10); // Центрируем карту на Москве
-
-        // Add 2GIS tile layer
-        var baseLayer = L.tileLayer('https://tile2.maps.2gis.com/tiles?x={x}&y={y}&z={z}', {
-            maxZoom: 18,
-            attribution: 'Map data © 2GIS'
-        }).addTo(map);
-
-        // Function to load and parse KML file
-        function loadKML(url) {
-            fetch(url)
-                .then(response => response.text())
-                .then(kmlText => {
-                    var parser = new DOMParser();
-                    var kml = parser.parseFromString(kmlText, 'text/xml');
-                    var geojson = toGeoJSON.kml(kml);
-                    var trackLayer = L.geoJSON(geojson, {
-                        style: {
-                            color: 'red',  // Цвет кривой
-                            weight: 3      // Толщина кривой
-                        }
-                    }).addTo(map);
-                    // Fit map to the bounds of the GeoJSON layer
-                    map.fitBounds(trackLayer.getBounds());
-                    // Save GeoJSON to localStorage for use in stats.html
-                    localStorage.setItem('geojson', JSON.stringify(geojson));
-                })
-                .catch(err => console.log(err));
-        }
-
-        // Load the KML file from GitHub Pages (replace with your actual URL)
-        loadKML('https://kirik1402.github.io/main/trek.kml');
-    </script>
+  <h1>Я полностью переписываю код с добавлением серверной компоненты через node.js. Увидимся позже)</h1>
 </body>
 </html>
