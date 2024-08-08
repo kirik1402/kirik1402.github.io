@@ -50,22 +50,19 @@
             maxZoom: 18
         }).addTo(map);
 
-        // Загружаем и отображаем KML файл
-        fetch('trek.kml')
-            .then(res => {
-                if (!res.ok) {
-                    throw new Error(`HTTP error! status: ${res.status}`);
-                }
-                return res.text();
-            })
-            .then(kmlText => {
-                var parser = new DOMParser();
-                var kml = parser.parseFromString(kmlText, 'text/xml');
-                var track = new L.KML(kml);
-
-                if (!track.getLayers().length) {
-                    console.error('No layers found in KML.');
-                } else {
+        // Функция для загрузки и отображения KML файла
+        function loadKML(fileName) {
+            fetch(fileName)
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error(`HTTP error! status: ${res.status}`);
+                    }
+                    return res.text();
+                })
+                .then(kmlText => {
+                    var parser = new DOMParser();
+                    var kml = parser.parseFromString(kmlText, 'text/xml');
+                    var track = new L.KML(kml);
                     map.addLayer(track);
 
                     // Устанавливаем границы карты по KML треку
@@ -75,9 +72,24 @@
                     } else {
                         console.error('Bounds are not valid.');
                     }
+                })
+                .catch(error => console.error('Error fetching KML file:', error));
+        }
+
+        // Загружаем список KML файлов из JSON файла
+        fetch('kml_files.json')
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
                 }
+                return res.json();
             })
-            .catch(error => console.error('Error fetching KML file:', error));
+            .then(fileNames => {
+                fileNames.forEach(fileName => {
+                    loadKML(fileName);
+                });
+            })
+            .catch(error => console.error('Error fetching KML files list:', error));
 
         // Извлечение координат из EXIF данных изображения
         var imageUrl = 'image.jpg';
