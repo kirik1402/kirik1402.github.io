@@ -65,13 +65,7 @@
                     var track = new L.KML(kml);
                     map.addLayer(track);
 
-                    // Устанавливаем границы карты по KML треку
-                    var bounds = track.getBounds();
-                    if (bounds.isValid()) {
-                        map.fitBounds(bounds);
-                    } else {
-                        console.error('Bounds are not valid.');
-                    }
+                    // Удалена установка границ карты по KML треку
                 })
                 .catch(error => console.error('Error fetching KML file:', error));
         }
