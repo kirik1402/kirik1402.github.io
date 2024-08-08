@@ -14,14 +14,16 @@
                 <th>#</th>
                 <th>Имя трека</th>
                 <th>Длина трека (км)</th>
+                <th>Координаты начала</th>
+                <th>Координаты конца</th>
             </tr>
         </thead>
         <tbody id="stats-table-body">
         </tbody>
         <tfoot>
             <tr>
-                <td colspan="2">Итоговая длина</td>
-                <td id="total-distance">0 км</td>
+                <td colspan="3">Итоговая длина</td>
+                <td colspan="2" id="total-distance">0 км</td>
             </tr>
         </tfoot>
     </table>
@@ -39,10 +41,14 @@
 
         tracks.forEach((track, index) => {
             const row = document.createElement('tr');
+            const startCoords = track.startCoords.reverse().join(', ');
+            const endCoords = track.endCoords.reverse().join(', ');
             row.innerHTML = `
                 <td>${index + 1}</td>
                 <td>${track.name}</td>
                 <td>${(track.length / 1000).toFixed(2)} км</td>
+                <td>${startCoords}</td>
+                <td>${endCoords}</td>
             `;
             tableBody.appendChild(row);
             totalDistance += track.length;
