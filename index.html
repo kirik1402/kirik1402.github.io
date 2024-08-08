@@ -1,71 +1,52 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leaflet with 2GIS and KML</title>
-    <!-- Подключаем Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <!-- Подключаем Leaflet JavaScript -->
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <!-- Подключаем Leaflet KML плагин -->
-    <script src="https://unpkg.com/leaflet-plugins/layer/vector/KML.js"></script>
+    <title>Карта на 2ГИС с KML</title>
     <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            margin: 0;
-            height: 100vh;
-        }
         #map {
-            flex: 1;
+            width: 100%;
+            height: 100vh; /* Высота на весь экран */
         }
     </style>
+    <!-- Подключаем библиотеку 2ГИС -->
+    <script src="https://cdn.jsdelivr.net/npm/@2gis/mapgl@1.0.0-beta.23/dist/mapgl.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@2gis/mapgl@1.0.0-beta.23/dist/mapgl.css" type="text/css">
 </head>
 <body>
+    <!-- Контейнер для карты -->
     <div id="map"></div>
-
+    
     <script>
-        // Создаем карту и устанавливаем начальные координаты и масштаб
-        var map = L.map('map').setView([37.4221, -122.0841], 15);
-
-        // Добавляем подложку 2ГИС
-        var dgisLayer = L.tileLayer('https://tile2.maps.2gis.com/tiles?x={x}&y={y}&z={z}', {
-            attribution: '&copy; 2GIS',
-            maxZoom: 18
-        }).addTo(map);
+        const map = new mapgl.Map('map', {
+            center: [37.6173, 55.7558], // Координаты центра карты (Москва)
+            zoom: 10 // Уровень масштабирования
+        });
 
         // Функция для загрузки и отображения KML файла
-        function loadKML(fileName) {
-            fetch(fileName)
-                .then(res => {
-                    if (!res.ok) {
-                        throw new Error(`HTTP error! status: ${res.status}`);
-                    }
-                    return res.text();
-                })
+        function loadKML(url) {
+            fetch(url)
+                .then(response => response.text())
                 .then(kmlText => {
-                    var parser = new DOMParser();
-                    var kml = parser.parseFromString(kmlText, 'text/xml');
-                    var track = new L.KML(kml);
-                    map.addLayer(track);
+                    const parser = new DOMParser();
+                    const kml = parser.parseFromString(kmlText, 'application/xml');
+                    const placemarks = kml.querySelectorAll('Placemark');
 
-                    // Устанавливаем границы карты по KML треку
-                    var bounds = track.getBounds();
-                    if (bounds.isValid()) {
-                        map.fitBounds(bounds);
-                    } else {
-                        console.error('Bounds are not valid.');
-                    }
-                })
-                .catch(error => console.error('Error fetching KML file:', error));
+                    placemarks.forEach(placemark => {
+                        const coords = placemark.querySelector('coordinates').textContent.trim().split(',');
+                        const lon = parseFloat(coords[0]);
+                        const lat = parseFloat(coords[1]);
+
+                        new mapgl.Marker(map, {
+                            coordinates: [lon, lat],
+                        });
+                    });
+                });
         }
 
-        // Имя локального KML файла
-        var kmlFileName = 'westcampus.kml'; // Убедитесь, что файл сохранен в той же директории
-
-        // Загрузка и отображение локального KML файла
-        loadKML(kmlFileName);
+        // Загрузка KML файла
+        loadKML('trek.kml');
     </script>
 </body>
 </html>
