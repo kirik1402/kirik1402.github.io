@@ -1,61 +1,48 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Обо мне</title>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css" />
+    <title>2GIS Map with KML Track</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <!-- Leaflet KML Plugin CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-kml/Leaflet.KML.css" />
     <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            background-color: #f4f4f4;
-            font-family: 'Arial', sans-serif;
-            color: #333;
-        }
-
-        .bio-container {
-            text-align: center;
-            max-width: 800px;
-            padding: 20px;
-        }
-
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 20px;
-        }
-
-        p {
-            font-size: 1.2em;
-            line-height: 1.6;
-        }
-
-        .back-button {
-            margin-top: 20px;
-            background-color: #007bff;
-            color: white;
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 5px;
-            border: none;
-            text-align: center;
-            text-decoration: none;
-        }
-
-        .back-button:hover {
-            background-color: #0056b3;
+        #map {
+            height: 100vh;
+            width: 100%;
         }
     </style>
 </head>
 <body>
-    <div class="bio-container">
-        <h1>Кирилл Трощенков</h1>
-        <p>Руководитель группы навигации 2ГИС, Москва.  <a href="https://t.me/kirik1402" class="back-button">Telegram</a></p>
-        <a href="index.html" class="back-button">Назад на главную</a>
-    </div>
+    <div id="map"></div>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <!-- Leaflet KML Plugin JS -->
+    <script src="https://unpkg.com/leaflet-kml/Leaflet.KML.js"></script>
+    <script>
+        // Initialize the map
+        var map = L.map('map').setView([55.751244, 37.618423], 10); // Центрируем карту на Москве
+
+        // Add 2GIS tile layer
+        L.tileLayer('https://tile2.maps.2gis.com/tiles?x={x}&y={y}&z={z}', {
+            maxZoom: 18,
+            attribution: 'Map data © 2GIS'
+        }).addTo(map);
+
+        // Load KML file and add it to the map
+        fetch('trek.kml')
+            .then(res => res.text())
+            .then(kmlText => {
+                var parser = new DOMParser();
+                var kml = parser.parseFromString(kmlText, 'text/xml');
+                var track = new L.KML(kml);
+                map.addLayer(track);
+                // Fit map to the bounds of the KML track
+                map.fitBounds(track.getBounds());
+            })
+            .catch(err => console.log(err));
+    </script>
 </body>
 </html>
