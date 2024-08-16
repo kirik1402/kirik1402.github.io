@@ -30,3 +30,27 @@ input[type="text"], button {
         padding: 12px;
     }
 }
+
+/* Медиазапросы для планшетов */
+@media (min-width: 601px) and (max-width: 1024px) {
+    #map {
+        height: 400px;
+    }
+
+    input[type="text"], button {
+        font-size: 20px;
+        padding: 14px;
+    }
+}
+
+/* Медиазапросы для больших экранов */
+@media (min-width: 1025px) {
+    #map {
+        height: 600px;
+    }
+
+    input[type="text"], button {
+        font-size: 22px;
+        padding: 16px;
+    }
+}
