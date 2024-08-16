@@ -13,7 +13,10 @@
     <input type="file" id="file-input" accept=".kml" multiple>
     <button id="stats-btn" style="display:none;">Перейти к статистике</button>
     <div id="loading" style="display:none;">Идёт загрузка, подождите...</div>
-    <div id="map"></div>
+    <div id="map-container">
+        <div id="map"></div>
+        <div id="map-resize-handle"></div>
+    </div>
     <button id="contact-btn" onclick="window.location.href='cv.html'">Портфолио =)</button>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
