@@ -84,3 +84,31 @@ document.getElementById('stats-btn').addEventListener('click', function() {
     const tracksData = encodeURIComponent(JSON.stringify(tracks));
     window.location.href = `stats.html?tracks=${tracksData}`;
 });
+
+// Добавим код для обработки ресайза карты
+const mapContainer = document.getElementById('map-container');
+const resizeHandle = document.getElementById('map-resize-handle');
+
+let isResizing = false;
+
+resizeHandle.addEventListener('mousedown', function(e) {
+    isResizing = true;
+    document.addEventListener('mousemove', resizeMap);
+    document.addEventListener('mouseup', stopResizing);
+});
+
+function resizeMap(e) {
+    if (isResizing) {
+        const width = e.clientX - mapContainer.offsetLeft;
+        const height = e.clientY - mapContainer.offsetTop;
+        mapContainer.style.width = `${width}px`;
+        mapContainer.style.height = `${height}px`;
+        map.invalidateSize();
+    }
+}
+
+function stopResizing() {
+    isResizing = false;
+    document.removeEventListener('mousemove', resizeMap);
+    document.removeEventListener('mouseup', stopResizing);
+}
