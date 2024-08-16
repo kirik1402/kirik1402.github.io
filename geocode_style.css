@@ -1,25 +1,34 @@
 /* Основные стили для карты */
 #map {
-    height: 500px;
+    height: 80vh; /* Высота карты занимает 80% высоты окна */
     width: 100%;
+    position: relative;
 }
 
 /* Стили для ввода и кнопки */
+#controls {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1000; /* Элементы управления располагаются поверх карты */
+}
+
 input[type="text"], button {
     padding: 10px;
-    margin: 10px 0;
-    width: 100%;
+    margin: 5px 0;
+    width: 80vw; /* Ширина элементов управления занимает 80% ширины окна */
     box-sizing: border-box;
     font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
 
 /* Медиазапросы для мобильных устройств */
 @media (max-width: 600px) {
-    /* Уменьшение высоты карты для мобильных устройств */
-    #map {
-        height: 300px;
-    }
-
     /* Увеличение размеров текста для ввода и кнопок на мобильных устройствах */
     input[type="text"], button {
         font-size: 18px;
@@ -33,10 +42,6 @@ input[type="text"], button {
 
 /* Медиазапросы для планшетов */
 @media (min-width: 601px) and (max-width: 1024px) {
-    #map {
-        height: 400px;
-    }
-
     input[type="text"], button {
         font-size: 20px;
         padding: 14px;
@@ -45,10 +50,6 @@ input[type="text"], button {
 
 /* Медиазапросы для больших экранов */
 @media (min-width: 1025px) {
-    #map {
-        height: 600px;
-    }
-
     input[type="text"], button {
         font-size: 22px;
         padding: 16px;
