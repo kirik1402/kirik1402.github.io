@@ -58,7 +58,7 @@
 
         <section id="contact" class="section">
             <h2>Контакты</h2>
-            <button id="show-email-btn">Показать почту</button>
+            <button id="toggle-email-btn">Показать почту</button>
 		<p id="email" style="display: none;">email@example.com</p>
             <p>Или найдите меня в социальных сетях:</p>
             <ul class="socials">
@@ -74,16 +74,22 @@
             <p>&copy; 2024 Кирилл Трощенков</p>
         </div>
     </footer>
-<script>
-    document.getElementById('show-email-btn').addEventListener('click', function() {
-        var email = document.getElementById('email');
-        if (email.style.display === 'none') {
-            email.style.display = 'block';
-        } else {
-            email.style.display = 'none';
-        }
-    });
-</script>
+	
+	<script>  //Кнопка для почты
+	    document.getElementById('toggle-email-btn').addEventListener('click', function() {
+	        var email = document.getElementById('email');
+	        var button = document.getElementById('toggle-email-btn');
+	        
+	        if (email.style.display === 'none') {
+	            email.style.display = 'block';
+	            button.textContent = 'Скрыть почту';
+	        } else {
+	            email.style.display = 'none';
+	            button.textContent = 'Показать почту';
+	        }
+	    });
+	</script>
+
 
 </body>
 </html>
