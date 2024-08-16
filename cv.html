@@ -58,7 +58,8 @@
 
         <section id="contact" class="section">
             <h2>Контакты</h2>
-            <p>Свяжитесь со мной по почте: <a href="mailto:email@example.com">email@example.com</a></p>
+            <button id="show-email-btn">Показать почту</button>
+		<p id="email" style="display: none;">email@example.com</p>
             <p>Или найдите меня в социальных сетях:</p>
             <ul class="socials">
                 <li><a href="https://t.me/kirik1402" target="_blank" rel="noopener noreferrer">Telegram</a></li>
@@ -73,6 +74,16 @@
             <p>&copy; 2024 Кирилл Трощенков</p>
         </div>
     </footer>
+<script>
+    document.getElementById('show-email-btn').addEventListener('click', function() {
+        var email = document.getElementById('email');
+        if (email.style.display === 'none') {
+            email.style.display = 'block';
+        } else {
+            email.style.display = 'none';
+        }
+    });
+</script>
 
 </body>
 </html>
