@@ -30,7 +30,12 @@
                         map.setView([lat, lon], 16);
 
                         var marker = L.marker([lat, lon]).addTo(map);
-                        marker.bindPopup(result.display_name).openPopup();
+                        marker.bindPopup(`<b>Координаты:</b> ${lat}, ${lon}<br><b>Адрес:</b> ${result.display_name}`).openPopup();
+
+                        marker.on('click', function() {
+                            copyToClipboard(`${lat}, ${lon}`);
+                            alert('Координаты скопированы в буфер обмена');
+                        });
                     } else {
                         alert('Адрес не найден');
                     }
@@ -38,6 +43,15 @@
                 .catch(error => {
                     alert('Ошибка геокодирования: ' + error);
                 });
+        }
+
+        function copyToClipboard(text) {
+            var textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
         }
 
         window.addEventListener('load', initMap);
