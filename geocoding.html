@@ -2,64 +2,82 @@
 <html>
 <head>
     <title>Геокодирование с Nominatim и Leaflet</title>
+    <!-- Подключение стилей Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <!-- Подключение пользовательских стилей -->
+    <link rel="stylesheet" href="geocode_style.css" />
+    <!-- Подключение скриптов Leaflet -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <!-- Вставка JavaScript кода для работы с картой и геокодированием -->
     <script>
+        // Функция для инициализации карты
         function initMap() {
+            // Создание карты с центром на Москву и начальным зумом 10
             var map = L.map('map').setView([55.76, 37.64], 10); // Москва
 
+            // Добавление слоя карты от OpenStreetMap
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
 
+            // Сохранение ссылки на карту в глобальной переменной
             window.map = map;
         }
 
+        // Функция для геокодирования адреса
         function geocodeAddress() {
-            var address = document.getElementById('address').value;
-            var url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
+            var address = document.getElementById('address').value; // Получение введенного адреса
+            var url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`; // Формирование URL для запроса к Nominatim API
 
-            fetch(url)
-                .then(response => response.json())
+            fetch(url) // Выполнение запроса к Nominatim API
+                .then(response => response.json()) // Преобразование ответа в JSON
                 .then(data => {
-                    if (data.length > 0) {
-                        var result = data[0];
-                        var lat = result.lat;
-                        var lon = result.lon;
+                    if (data.length > 0) { // Если найдены результаты
+                        var result = data[0]; // Взятие первого результата
+                        var lat = result.lat; // Получение широты
+                        var lon = result.lon; // Получение долготы
 
+                        // Установка центра карты на найденные координаты и зума 16
                         map.setView([lat, lon], 16);
 
+                        // Создание маркера на карте
                         var marker = L.marker([lat, lon]).addTo(map);
-                        marker.bindPopup(`<b>Координаты:</b> ${lat}, ${lon}<br><b>Адрес:</b> ${result.display_name}`).openPopup();
+                        marker.bindPopup(`<b>Координаты:</b> ${lat}, ${lon}<br><b>Адрес:</b> ${result.display_name}`).openPopup(); // Привязка всплывающего окна с координатами и адресом
 
+                        // Добавление события клика на маркер
                         marker.on('click', function() {
-                            copyToClipboard(`${lat}, ${lon}`);
-                            alert('Координаты скопированы в буфер обмена');
+                            copyToClipboard(`${lat}, ${lon}`); // Копирование координат в буфер обмена при клике на маркер
+                            alert('Координаты скопированы в буфер обмена'); // Уведомление пользователя
                         });
                     } else {
-                        alert('Адрес не найден');
+                        alert('Адрес не найден'); // Уведомление пользователя, если адрес не найден
                     }
                 })
                 .catch(error => {
-                    alert('Ошибка геокодирования: ' + error);
+                    alert('Ошибка геокодирования: ' + error); // Уведомление пользователя об ошибке геокодирования
                 });
         }
 
+        // Функция для копирования текста в буфер обмена
         function copyToClipboard(text) {
-            var textarea = document.createElement('textarea');
-            textarea.value = text;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
+            var textarea = document.createElement('textarea'); // Создание временного текстового поля
+            textarea.value = text; // Установка значения текстового поля
+            document.body.appendChild(textarea); // Добавление текстового поля на страницу
+            textarea.select(); // Выделение текста
+            document.execCommand('copy'); // Копирование текста в буфер обмена
+            document.body.removeChild(textarea); // Удаление текстового поля со страницы
         }
 
+        // Инициализация карты при загрузке страницы
         window.addEventListener('load', initMap);
     </script>
 </head>
 <body>
+    <!-- Поле ввода для адреса -->
     <input id="address" type="text" placeholder="Введите адрес">
+    <!-- Кнопка для запуска геокодирования -->
     <button onclick="geocodeAddress()">Геокодировать</button>
+    <!-- Элемент для отображения карты -->
     <div id="map" style="height: 500px; width: 100%;"></div>
 </body>
 </html>
