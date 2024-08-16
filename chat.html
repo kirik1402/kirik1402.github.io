@@ -55,24 +55,27 @@
             color: #666;
         }
         .post-image {
-            max-width: 100%;
+            max-width: 1080px;
+            max-height: 1080px;
+            width: 100%;
+            height: auto;
             margin-top: 10px;
             border-radius: 4px;
         }
     </style>
 </head>
 <body>
-    <h1>шо вы?</h1>
+    <h1>шо вы головы</h1>
     <div class="textarea-container">
-        <label for="user-input">Введите текст ниже (макс. 200 символов):</label>
-        <textarea id="user-input" placeholder="Введите ваш текст здесь..." oninput="updateCharCounter()"></textarea>
+        <label for="user-input">пиши сюда ебло:</label>
+        <textarea id="user-input" placeholder="даун..." oninput="updateCharCounter()"></textarea>
         <div class="char-counter" id="char-counter">0/200</div>
     </div>
     <div class="textarea-container">
         <input type="file" id="image-input" accept="image/*">
     </div>
     <div class="button-container">
-        <button onclick="postText()">Запостить</button>
+        <button onclick="postText()">Насрать</button>
     </div>
     <div class="post-container" id="post-container">
         <!-- Здесь будут отображаться посты -->
