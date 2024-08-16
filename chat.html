@@ -220,7 +220,7 @@
             charCounter.textContent = `${userInput.length}/200`;
         }
 
-        function postText() {
+        async function postText() {
             const userInput = document.getElementById('user-input').value;
             const imageInput = document.getElementById('image-input').files[0];
 
@@ -235,28 +235,26 @@
 
             if (imageInput) {
                 const reader = new FileReader();
-                reader.onload = function(event) {
+                reader.onload = async function(event) {
                     const imageUrl = event.target.result;
                     const currentDateTime = new Date().toLocaleString();
                     const post = {
-                        id: Date.now(), // Уникальный идентификатор поста
                         text: userInput,
                         time: currentDateTime,
                         image: imageUrl
                     };
-                    savePost(post);
+                    await savePost(post);
                     addPostToDOM(post);
                 };
                 reader.readAsDataURL(imageInput);
             } else {
                 const currentDateTime = new Date().toLocaleString();
                 const post = {
-                    id: Date.now(), // Уникальный идентификатор поста
                     text: userInput,
                     time: currentDateTime,
                     image: null
                 };
-                savePost(post);
+                await savePost(post);
                 addPostToDOM(post);
             }
 
@@ -266,14 +264,20 @@
             updateCharCounter();
         }
 
-        function savePost(post) {
-            let posts = JSON.parse(localStorage.getItem('posts')) || [];
-            posts.unshift(post); // Добавляем новый пост в начало массива
-            localStorage.setItem('posts', JSON.stringify(posts));
+        async function savePost(post) {
+            const response = await fetch('http://localhost:3000/posts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(post)
+            });
+            return response.json();
         }
 
-        function loadPosts() {
-            const posts = JSON.parse(localStorage.getItem('posts')) || [];
+        async function loadPosts() {
+            const response = await fetch('http://localhost:3000/posts');
+            const posts = await response.json();
             posts.forEach(post => {
                 addPostToDOM(post);
             });
@@ -285,7 +289,7 @@
             // Создаем новый элемент поста
             const postElement = document.createElement('div');
             postElement.className = 'post';
-            postElement.setAttribute('data-id', post.id);
+            postElement.setAttribute('data-id', post._id);
 
             // Создаем элемент для текста поста
             const postText = document.createElement('p');
@@ -300,7 +304,7 @@
             const deleteButton = document.createElement('button');
             deleteButton.className = 'delete-button';
             deleteButton.textContent = 'Удалить';
-            deleteButton.onclick = () => deletePost(post.id);
+            deleteButton.onclick = () => deletePost(post._id);
 
             // Добавляем текст, время и кнопку удаления в элемент поста
             postElement.appendChild(postText);
@@ -319,10 +323,10 @@
             postContainer.insertBefore(postElement, postContainer.firstChild);
         }
 
-        function deletePost(postId) {
-            let posts = JSON.parse(localStorage.getItem('posts')) || [];
-            posts = posts.filter(post => post.id !== postId);
-            localStorage.setItem('posts', JSON.stringify(posts));
+        async function deletePost(postId) {
+            await fetch(`http://localhost:3000/posts/${postId}`, {
+                method: 'DELETE'
+            });
             removePostFromDOM(postId);
         }
 
