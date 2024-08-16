@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Чат МТИ</title>
+    <title>Простая веб-страница</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -54,17 +54,25 @@
             font-size: 14px;
             color: #666;
         }
+        .post-image {
+            max-width: 100%;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
-    <h1>Шо вы?</h1>
+    <h1>Добро пожаловать на простую веб-страницу</h1>
     <div class="textarea-container">
         <label for="user-input">Введите текст ниже (макс. 200 символов):</label>
         <textarea id="user-input" placeholder="Введите ваш текст здесь..." oninput="updateCharCounter()"></textarea>
         <div class="char-counter" id="char-counter">0/200</div>
     </div>
+    <div class="textarea-container">
+        <input type="file" id="image-input" accept="image/*">
+    </div>
     <div class="button-container">
-        <button onclick="postText()">я еблан</button>
+        <button onclick="postText()">Запостить</button>
     </div>
     <div class="post-container" id="post-container">
         <!-- Здесь будут отображаться посты -->
@@ -81,6 +89,8 @@
 
         function postText() {
             const userInput = document.getElementById('user-input').value;
+            const imageInput = document.getElementById('image-input').files[0];
+
             if (userInput.trim() === '') {
                 alert('Пожалуйста, введите текст.');
                 return;
@@ -90,17 +100,36 @@
                 return;
             }
 
-            const currentDateTime = new Date().toLocaleString();
-            const post = {
-                id: Date.now(), // Уникальный идентификатор поста
-                text: userInput,
-                time: currentDateTime
-            };
-            savePost(post);
-            addPostToDOM(post);
+            if (imageInput) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const imageUrl = event.target.result;
+                    const currentDateTime = new Date().toLocaleString();
+                    const post = {
+                        id: Date.now(), // Уникальный идентификатор поста
+                        text: userInput,
+                        time: currentDateTime,
+                        image: imageUrl
+                    };
+                    savePost(post);
+                    addPostToDOM(post);
+                };
+                reader.readAsDataURL(imageInput);
+            } else {
+                const currentDateTime = new Date().toLocaleString();
+                const post = {
+                    id: Date.now(), // Уникальный идентификатор поста
+                    text: userInput,
+                    time: currentDateTime,
+                    image: null
+                };
+                savePost(post);
+                addPostToDOM(post);
+            }
 
-            // Очищаем текстовое поле
+            // Очищаем текстовое поле и счетчик символов
             document.getElementById('user-input').value = '';
+            document.getElementById('image-input').value = '';
             updateCharCounter();
         }
 
@@ -144,6 +173,14 @@
             postElement.appendChild(postText);
             postElement.appendChild(postTime);
             postElement.appendChild(deleteButton);
+
+            // Если есть изображение, добавляем его в пост
+            if (post.image) {
+                const postImage = document.createElement('img');
+                postImage.className = 'post-image';
+                postImage.src = post.image;
+                postElement.appendChild(postImage);
+            }
 
             // Добавляем новый пост в контейнер постов
             postContainer.insertBefore(postElement, postContainer.firstChild);
