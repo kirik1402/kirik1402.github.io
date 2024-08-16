@@ -103,6 +103,11 @@ body {
 }
 
 /* Стили для кнопки социальных сетей */
+.socials li {
+    display: inline-block;
+    margin: 0 5px;
+}
+
 .socials li a {
     background-color: #e1e1e1;
     color: #333;
