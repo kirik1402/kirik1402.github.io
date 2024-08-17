@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Геокодирование с Nominatim и Leaflet</title>
+    <title>Nominatim</title>
     <!-- Подключение стилей Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <!-- Подключение пользовательских стилей -->
@@ -13,7 +13,7 @@
         // Функция для инициализации карты
         function initMap() {
             // Создание карты с центром на Москву и начальным зумом 10
-            var map = L.map('map').setView([55.76, 37.64], 10); // Москва
+            var map = L.map('map').setView([55.76, 37.64], 12); // Москва
 
             // Добавление слоя карты от OpenStreetMap
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
