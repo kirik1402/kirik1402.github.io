@@ -1,103 +1,43 @@
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  background-color: #000; /* Черный фон */
+  font-family: Arial, sans-serif;
 }
 
-h1 {
-    margin: 20px;
+#pageContainer {
+  width: 95%; /* Установим ширину страницы в 95% */
+  max-width: 1200px; /* Максимальная ширина страницы */
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
-#map-container {
-    position: relative;
-    width: 80%;
-    height: 500px;
-    margin-bottom: 20px;
+#videoContainer {
+  width: 100%;
+  height: 60%; /* Увеличена высота контейнера для видео */
+  background-color: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+#videoContainer .panolens-container {
+  width: 100%; /* Установлена ширина видеопроигрывателя в 100% */
+  height: 100%;
+}
+
+#mapContainer {
+  width: 100%;
+  height: 40%; /* Уменьшена высота контейнера для карты */
 }
 
 #map {
-    width: 100%;
-    height: 100%;
-    background-color: #eee;
-}
-
-#map-resize-handle {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 20px;
-    height: 20px;
-    background-color: #007bff;
-    cursor: se-resize;
-    border: 2px solid #0056b3;
-    border-radius: 50%;
-}
-
-input[type="file"] {
-    display: none;
-}
-
-.custom-file-upload {
-    display: inline-block;
-    padding: 10px 20px;
-    cursor: pointer;
-    border-radius: 5px;
-    background-color: #007bff;
-    color: white;
-    font-size: 16px;
-    margin: 10px;
-    text-align: center;
-    text-decoration: none;
-}
-
-.custom-file-upload:hover {
-    background-color: #0056b3;
-}
-
-button {
-    padding: 10px 20px;
-    cursor: pointer;
-    border-radius: 5px;
-    background-color: #007bff;
-    color: white;
-    font-size: 16px;
-    margin: 10px;
-    border: none;
-    text-align: center;
-    text-decoration: none;
-}
-
-button:hover {
-    background-color: #0056b3;
-}
-
-#loading {
-    margin: 20px;
-    font-size: 18px;
-    color: #007bff;
-}
-
-table {
-    width: 80%;
-    margin: 20px auto;
-    border-collapse: collapse;
-}
-
-th, td {
-    padding: 10px;
-    text-align: left;
-    border: 1px solid #ddd;
-}
-
-th {
-    background-color: #007bff;
-    color: white;
-}
-
-tfoot td {
-    font-weight: bold;
+  width: 100%;
+  height: 100%;
 }
