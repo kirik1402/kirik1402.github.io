@@ -1,28 +1,104 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panoramic Video Map</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Портфолио</title>
+    <link rel="stylesheet" href="cv_styles.css">
 </head>
 <body>
-  <div id="pageContainer">
-    <div id="videoContainer"></div>
-    <div id="mapContainer">
-      <div id="map"></div>
-    </div>
-  </div>
 
-  <!-- Подключение библиотеки Leaflet -->
-  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-  <!-- Подключение библиотеки leaflet-omnivore для поддержки KML -->
-  <script src="https://unpkg.com/leaflet-omnivore@0.3.4/leaflet-omnivore.min.js"></script>
-  <!-- Подключение библиотеки three.js версии r105 -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/105/three.min.js"></script>
-  <!-- Подключение библиотеки Panolens.js -->
-  <script src="https://cdn.jsdelivr.net/npm/panolens@0.12.0/build/panolens.min.js"></script>
-  <script src="script.js"></script>
+    <header class="header">
+        <div class="container">
+            <h1>Мое Портфолио</h1>
+            <nav class="nav">
+                <a href="#about">Обо мне</a>
+                <a href="#portfolio">Проекты</a>
+                <a href="#services">Работа</a>
+                <a href="#testimonials">Интересы</a>
+                <a href="#contact">Контакты</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section id="about" class="section">
+            <h2>Обо мне</h2>
+            <p>Кирилл Трощенков, 25 лет</p>
+                <p>Специализируюсь на геоинформационных проектах</p>
+                <p> Для фана пишу код с помощью ChatGPT и после работаю с тем, что получилось=)</p>
+        </section>
+
+        <section id="portfolio" class="section">
+            <h2>Проекты</h2>
+            <div class="grid">
+                <div class="grid-item">
+					<a href="http://kirik14029.temp.swtest.ru/" target="_blank" rel="noopener noreferrer">
+						<img src="pics/project1.png" alt="KML-viewer">
+						<h3>KML viewer</h3>
+						<p>KML-треки объездов с камерой 360 
+                            Теперь с возможностью загрузки</p>
+                        <p>html, css, php. Карта 2ГИС на leaflet</>
+                        <p> Пока что без SSL-сертификатов, поэтому возможны алерты в браузере</p>
+					</a>
+                </div>
+                <div class="grid-item">
+                    <img src="pics/project2.png" alt="Проект 2">
+                    <h3>Объезд трасс. ГИС-проект</h3>
+                    <p>ГИС-проект с векторными слоями основных магистралей ЦФО</p>
+                    <p>Внутри треки проезда водителей</p>
+                    <p>Встроена модель геообработки, позволяющая принимать решения о проработке участков</p>
+                </div>
+                <!-- Добавьте больше проектов по необходимости -->
+            </div>
+        </section>
+
+        <section id="services" class="section">
+            <h2>Работа</h2>
+            <p>Руководитель грцппы навигации</p>
+            <p>2ГИС, Москва</p>
+            
+        </section>
+
+        <section id="testimonials" class="section">
+            <h2>Хобби</h2>
+            <p>Run, MTB, ski</p>
+        </section>
+
+        <section id="contact" class="section">
+            <h2>Контакты</h2>
+            <button id="toggle-email-btn">Написать на почту</button>
+		<p id="email" style="display: none;"><tt>kirik140299@yandex.ru</tt></p>
+            <p>Или найдите меня в социальных сетях:</p>
+            <ul class="socials">
+                <li><a href="https://t.me/kirik1402" target="_blank" rel="noopener noreferrer">Telegram</a></li>
+                <li><a href="https://github.com/kirik1402" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+                <li><a href="https://vk.com/kirik1402" target="_blank" rel="noopener noreferrer">VK</a></li>
+            </ul>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Кирилл Трощенков</p>
+        </div>
+    </footer>
+	
+	<script>  //Кнопка для почты
+	    document.getElementById('toggle-email-btn').addEventListener('click', function() {
+	        var email = document.getElementById('email');
+	        var button = document.getElementById('toggle-email-btn');
+	        
+	        if (email.style.display === 'none') {
+	            email.style.display = 'block';
+	            button.textContent = 'Скрыть почту';
+	        } else {
+	            email.style.display = 'none';
+	            button.textContent = 'Показать почту';
+	        }
+	    });
+	</script>
+
+
 </body>
 </html>
